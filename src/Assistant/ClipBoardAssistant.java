@@ -46,7 +46,6 @@ public ClipBoardAssistant (Clipboard sysClip){
                     "Ctrl")) {
                     try {
                         clipTracker.add(sysClip.getData(DataFlavor.stringFlavor).toString());
-                        System.out.println(sysClip.getData(DataFlavor.stringFlavor).toString());
                     } catch (UnsupportedFlavorException ex) {
                         Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {

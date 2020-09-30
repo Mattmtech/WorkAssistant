@@ -32,14 +32,14 @@ public class Main {
         Clipboard sysClip = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 		GlobalScreen.addNativeKeyListener(new ClipBoardAssistant(sysClip));
-                System.out.println("we out here");
+
         
                 
                 
                 
         
         while (true) {
-                int i = 0;
+               
         }
  }
         
