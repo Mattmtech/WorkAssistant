@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -29,45 +30,58 @@ import org.jnativehook.keyboard.NativeKeyListener;
  * @author Matt
  */
 public class ClipBoardAssistant implements NativeKeyListener {
-    
-      static final LinkedList<String> clipTracker = new LinkedList<String>();
-      Clipboard sysClip;
-      
-      
-public ClipBoardAssistant (Clipboard sysClip){
-    this.sysClip = sysClip;
-}
 
-	public void nativeKeyPressed(NativeKeyEvent e) {
-		System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
+    LinkedList<String> clipTracker;
+    Clipboard sysClip;
+    int ref;
+    public ClipBoardAssistant(Clipboard sysClip) {
+        this.sysClip = sysClip;
+        this.ref = -1;
+        this.clipTracker = new LinkedList<String>();
+    }
 
-	if (e.getKeyCode() == NativeKeyEvent.VC_C
-            && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
-                    "Ctrl")) {
-                    try {
-                        clipTracker.add(sysClip.getData(DataFlavor.stringFlavor).toString());
-                    } catch (UnsupportedFlavorException ex) {
-                        Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-            
-	}
+    public void nativeKeyPressed(NativeKeyEvent e) {
+        System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
 
-  }
+        if (e.getKeyCode() == NativeKeyEvent.VC_C
+                && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
+                        "Ctrl")) {
+            try {
+                clipTracker.add(sysClip.getData(DataFlavor.stringFlavor).toString());
+                ref++;
+            } catch (UnsupportedFlavorException ex) {
+                Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (e.getKeyCode() == NativeKeyEvent.VC_V
+                && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
+                        "Ctrl") && clipTracker.size() > 0) {
+            sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
+        }
+        else if (e.getKeyCode() == NativeKeyEvent.VC_UP
+                && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
+                        "Ctrl") && clipTracker.size() > 0) {
+            ref = ref-1;
+            sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
+        }
+        else if (e.getKeyCode() == NativeKeyEvent.VC_DOWN
+                && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
+                        "Ctrl") && clipTracker.size() > ref) {
+            ref++;
+            sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
+        }
+
+    }
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent nke) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent nke) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
-    
-
-
 
 }
-
