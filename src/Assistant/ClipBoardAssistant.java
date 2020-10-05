@@ -34,15 +34,22 @@ public class ClipBoardAssistant implements NativeKeyListener {
     LinkedList<String> clipTracker;
     Clipboard sysClip;
     int ref;
-    public ClipBoardAssistant(Clipboard sysClip) {
+    ApplicationsAssistant appAssist;
+
+    public ClipBoardAssistant(Clipboard sysClip, ApplicationsAssistant appAssist) {
         this.sysClip = sysClip;
         this.ref = -1;
         this.clipTracker = new LinkedList<String>();
+        this.appAssist = appAssist;
     }
 
     public void nativeKeyPressed(NativeKeyEvent e) {
         System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
-
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if (e.getKeyCode() == NativeKeyEvent.VC_C
                 && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
                         "Ctrl")) {
@@ -57,31 +64,45 @@ public class ClipBoardAssistant implements NativeKeyListener {
         } else if (e.getKeyCode() == NativeKeyEvent.VC_V
                 && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
                         "Ctrl") && clipTracker.size() > 0) {
-            sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
-        }
-        else if (e.getKeyCode() == NativeKeyEvent.VC_UP
+            try {
+                sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+        } else if (e.getKeyCode() == NativeKeyEvent.VC_UP
                 && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
-                        "Ctrl") && clipTracker.size() > 0) {
-            ref = ref-1;
+                        "Ctrl") && clipTracker.size() > 0 && ref > -1) {
+            if (ref > 0) {
+                ref = ref - 1;
+            }
             sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
-        }
-        else if (e.getKeyCode() == NativeKeyEvent.VC_DOWN
+        } else if (e.getKeyCode() == NativeKeyEvent.VC_DOWN
                 && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
-                        "Ctrl") && clipTracker.size() > ref) {
-            ref++;
+                        "Ctrl") && clipTracker.size() - 1 > ref) {
+            if (ref < clipTracker.size() - 1) {
+                ref++;
+            }
             sysClip.setContents(new StringSelection(clipTracker.get(ref)), new StringSelection(clipTracker.get(ref)));
+        } else if (e.getKeyCode() == NativeKeyEvent.VC_SPACE
+                && NativeKeyEvent.getModifiersText(e.getModifiers()).equals(
+                        "Ctrl")) {
+            try {
+                appAssist.undoAppClose();
+            } catch (IOException ex) {
+                Logger.getLogger(ClipBoardAssistant.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }
 
     @Override
     public void nativeKeyTyped(NativeKeyEvent nke) {
-        
+
     }
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent nke) {
-        
+
     }
 
 }
